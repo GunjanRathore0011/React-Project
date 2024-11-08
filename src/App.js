@@ -1,25 +1,53 @@
-import logo from './logo.svg';
 import './App.css';
+import Navbar from './components/Navbar';
+import Filter from './components/Filter';
+import Cards from './components/Cards'
+import { apiUrl,filterData } from './data';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import Spinner from './components/Spinner';
+import Notfound from './components/Notfound'; 
+const App=()=>{
+  const[courses,setCourses]=useState(null);
+  const[loading,setLoading]=useState(true);
+  const[category,setCategory]=useState(filterData[0].title);
+  // console.log(category);
+  async function fetchData(){
+    setLoading(true);
+    try{
+      let response = await fetch(apiUrl);
+      let output= await response.json();
+      setCourses(output.data) ;
+      // console.log(output);
+    }
+    catch(error){
+      toast.error("Network Error");
+    }
+    setLoading(false); 
+    // setCourses(null)
+  }
 
-function App() {
+  useEffect(()=>{
+    fetchData();
+  },[])
+   
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='min-h-screen bg-slate-500'>
+      <div>
+        <Navbar/>
+      </div>
+      <div>
+        <Filter filterData={filterData} category={category} setCategory={setCategory} />
+        <div className="w-11/12 max-w-[1200px] mx-auto flex flex-wrap justify-center item-center min-h[50vh]">
+        {
+          loading  ? (<Spinner/>) : ( courses ? (<Cards courses={courses} category={category} />):(<Notfound></Notfound>)
+        )} 
+        
+      </div>
+      </div>
+      
     </div>
   );
-}
+};
 
 export default App;
